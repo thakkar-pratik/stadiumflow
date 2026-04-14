@@ -35,6 +35,15 @@ public class IoTService {
     public SseEmitter registerClient() {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         this.emitters.add(emitter);
+        
+        // IMMEDIATE FLUSH: Send current data to bypass Cloud Run/Nginx buffering
+        try {
+            emitter.send(zoneRepository.findAll());
+        } catch (IOException e) {
+            emitter.complete();
+            this.emitters.remove(emitter);
+        }
+        
         emitter.onCompletion(() -> this.emitters.remove(emitter));
         emitter.onTimeout(() -> this.emitters.remove(emitter));
         return emitter;
