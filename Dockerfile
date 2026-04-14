@@ -1,5 +1,5 @@
 # PHASE 1: Build Environment
-FROM openjdk:11-jdk-slim AS build
+FROM eclipse-temurin:11-jdk-focal AS build
 WORKDIR /app
 
 # Copy gradle wrapper and config
@@ -16,7 +16,7 @@ COPY src src
 RUN ./gradlew build -x test --no-daemon
 
 # PHASE 2: Runtime Environment
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:11-jre-focal
 WORKDIR /app
 
 # Maxing out Efficiency: Copy only the finalized fat JAR
