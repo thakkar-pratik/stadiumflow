@@ -152,13 +152,13 @@ body.force-mobile .view-toggle-btn { margin-top: 0; }
     letter-spacing: -1.5px;
 }
 .event-tag { 
-    font-size: 13px; 
+    font-size: 18px; 
     font-weight: 800; 
     color: var(--status-purple); 
     text-transform: uppercase; 
-    letter-spacing: 2px; 
-    margin: 0;
-    opacity: 0.9;
+    letter-spacing: 3px; 
+    margin: -5px 0 0 0;
+    opacity: 1;
 }
 
 .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
@@ -271,9 +271,9 @@ h2 { font-size: 18px; color: var(--text-muted); margin: 30px 0 20px 0; text-tran
     main { padding: 0 10px 130px 10px; }
     .grid { grid-template-columns: 1fr; gap: 24px; }
     .card, .order-item { padding: 28px; border-radius: 32px; }
-    .logo-title { font-size: 28px; letter-spacing: -1.5px; margin: 2px 0; }
-    .greeting { font-size: 20px; margin-bottom: 2px; }
-    .event-tag { font-size: 11px; letter-spacing: 2px; font-weight: 800; }
+    .logo-title { font-size: 28px; letter-spacing: -1.5px; margin: 4px 0 0 0; }
+    .greeting { font-size: 20px; margin-bottom: -5px; }
+    .event-tag { font-size: 15px; letter-spacing: 1.5px; font-weight: 800; margin-top: 5px; }
     h2 { font-size: 15px; margin: 25px 0 15px 0; letter-spacing: 2.5px; }
 
     /* Map Specific Mobile Overrides */
