@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stadiumflow-v2';
+const CACHE_NAME = 'stadiumflow-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

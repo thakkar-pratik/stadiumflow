@@ -3,47 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StadiumFlow | Venue OS</title>
+    <title>StadiumPulse Live | Coldplay Wankhede</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f111a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="StadiumFlow">
+    <meta name="apple-mobile-web-app-title" content="StadiumPulse">
     <link rel="apple-touch-icon" href="images/icon-192.png">
 
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=1.1">
 </head>
 <body>
     <div class="app-container">
         
         <!-- DESKTOP SIDEBAR (Hidden on mobile) -->
         <nav class="desktop-sidebar" role="navigation">
-            <div class="sidebar-logo">StadiumFlow</div>
+            <div class="sidebar-logo">StadiumPulse</div>
             <div class="sidebar-links">
                 <button class="nav-item active" data-target="view-home">Dashboard</button>
                 <button class="nav-item" data-target="view-map">Live Map</button>
-                <button class="nav-item" data-target="view-order">Concessions</button>
+                <button class="nav-item" data-target="view-order">Fan Fuel</button>
                 <button class="view-toggle-btn" id="toggle-view-desktop">📱 Toggle Mobile View</button>
             </div>
             <div class="sidebar-footer">
-                <div id="network-toggle-desktop" class="network-status online">
+                <div id="network-toggle-desktop" class="network-status online" title="Click to enable mesh mode">
                     <span class="status-dot"></span> 5G Online
                 </div>
+                <p style="font-size:10px; opacity:0.7; margin-top:5px;">No signal? Click for Bluetooth Mode</p>
             </div>
         </nav>
 
         <div class="main-wrapper">
             <!-- App Header -->
             <header class="app-header">
-                <h1>StadiumFlow</h1>
+                <div>
+                    <h1 style="margin:0;">StadiumPulse Live</h1>
+                    <p style="font-size:10px; opacity:0.8; margin:0;">Coldplay: Music of the Spheres</p>
+                </div>
                 <div class="header-right">
                     <button class="view-toggle-btn mobile-only" id="toggle-view-mobile" style="margin-right:10px;">🖥️ Full View</button>
                     <!-- Network Toggle (Mobile View) -->
-                    <button id="network-toggle" class="network-status online mobile-only">
-                        <span class="status-dot"></span> <span id="network-label">5G Online</span>
-                    </button>
+                    <div style="text-align:right;">
+                        <button id="network-toggle" class="network-status online mobile-only">
+                            <span class="status-dot"></span> <span id="network-label">5G Online</span>
+                        </button>
+                        <p class="mobile-only" style="font-size:8px; opacity:0.6; margin:2px 0 0 0;">Toggle for Bluetooth Mode</p>
+                    </div>
                 </div>
             </header>
 
@@ -115,8 +122,8 @@
 
                     <section class="quick-actions">
                         <div class="promo-card" id="mesh-promo">
-                            <h3>Game Day Intelligence</h3>
-                            <p>Live sensors are monitoring all 4 gates. Switch to Mesh Mode to test offline resilience.</p>
+                            <h3>Coldplay Live Intelligence</h3>
+                            <p>Sensors are active across Wankhede. Tap the status badge if 5G is congested to switch to Bluetooth Mesh.</p>
                         </div>
                     </section>
                 </div>
@@ -130,10 +137,10 @@
                         </div>
                         <div class="map-wrapper">
                             <img src="images/wankhede_map.png" class="blueprint-img" alt="Wankhede Stadium Blueprint">
-                            <div class="zone" id="map-zone-Gate_A" style="top: 15%; left: 50%;">Gate A North</div>
-                            <div class="zone" id="map-zone-Gate_C" style="bottom: 15%; left: 50%;">Gate C South</div>
-                            <div class="zone" id="map-zone-Section_112" style="top: 50%; right: 15%;">Sec 112 (East)</div>
-                            <div class="zone" id="map-zone-Section_120" style="top: 50%; left: 15%;">Sec 120 (West)</div>
+                            <div class="zone" id="map-zone-Gate_A" style="top: 15%; left: 50%;">North Stand</div>
+                            <div class="zone" id="map-zone-Gate_C" style="bottom: 15%; left: 50%;">VIP Turf</div>
+                            <div class="zone" id="map-zone-Section_112" style="top: 50%; right: 15%;">Food Village</div>
+                            <div class="zone" id="map-zone-Section_120" style="top: 50%; left: 15%;">Hydration 1</div>
                             <div class="pin-marker" style="top: 60%; left: 50%;">📍 You</div>
                             <svg class="routing-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
                                 <defs><linearGradient id="neon-glow"><stop offset="0%" stop-color="var(--accent-blue)" /><stop offset="100%" stop-color="var(--status-green)" /></linearGradient></defs>
@@ -146,35 +153,35 @@
                 <!-- ORDER VIEW -->
                 <div id="view-order" class="view">
                     <section class="order-dashboard">
-                        <h2>Express Concessions</h2>
-                        <p class="subtitle">Yield Optimization: Prices drop as lines decrease.</p>
+                        <h2>Fan Fuel & Hydration</h2>
+                        <p class="subtitle">Eco-Optimization: Prices drop to clear stadium inventory.</p>
                         <div class="order-list" id="order-items-container">
                             <div class="order-item" id="menu-112">
-                                <div class="item-info"><h3>Mega Hotdog (Sec 112)</h3><p class="wait-badge" id="badge-112">Wait: -- m</p></div>
+                                <div class="item-info"><h3>Wankhede Spicy Burger (Sec 112)</h3><p class="wait-badge" id="badge-112">Wait: -- m</p></div>
                                 <div class="price-container">
-                                    <span class="old-price hidden" id="old-price-112">$8.00</span><span class="current-price" id="price-112">$8.00</span>
+                                    <span class="old-price hidden" id="old-price-112">₹800</span><span class="current-price" id="price-112">₹600</span>
                                     <button class="add-btn" aria-label="Add to cart">+</button>
                                 </div>
                             </div>
                             <div class="order-item" id="menu-120">
-                                <div class="item-info"><h3>Cold Beer (Sec 120)</h3><p class="wait-badge" id="badge-120">Wait: -- m</p></div>
+                                <div class="item-info"><h3>Cosmic Water - Refillable (Sec 120)</h3><p class="wait-badge" id="badge-120">Wait: -- m</p></div>
                                 <div class="price-container">
-                                    <span class="old-price hidden" id="old-price-120">$12.00</span><span class="current-price" id="price-120">$12.00</span>
+                                    <span class="old-price hidden" id="old-price-120">₹150</span><span class="current-price" id="price-120">₹100</span>
                                     <button class="add-btn" aria-label="Add to cart">+</button>
                                 </div>
                             </div>
                         </div>
-                        <button class="checkout-btn" id="checkout-main-btn">Proceed to Checkout</button>
-                        <p id="checkout-network-warning" class="hidden" style="text-align:center;font-size:12px;color:var(--accent-blue);margin-top:10px;">Security: Biometric Offline Verification</p>
+                        <button class="checkout-btn" id="checkout-main-btn">Proceed to Payment</button>
+                        <p id="checkout-network-warning" class="hidden" style="text-align:center;font-size:12px;color:var(--accent-blue);margin-top:10px;">Security: Secure Offline Mesh Token</p>
                     </section>
                 </div>
             </main>
 
             <!-- Bottom Navigation (Mobile View) -->
             <nav class="bottom-nav mobile-only" role="navigation" aria-label="Mobile Navigation">
-                <button class="nav-item active" data-target="view-home" aria-label="Dashboard Tab">Dashboard</button>
-                <button class="nav-item" data-target="view-map" aria-label="Map Tab">Map</button>
-                <button class="nav-item" data-target="view-order" aria-label="Order Tab">Order</button>
+                <button class="nav-item active" data-target="view-home" aria-label="Dashboard Tab">Queues</button>
+                <button class="nav-item" data-target="view-map" aria-label="Map Tab">Arena Map</button>
+                <button class="nav-item" data-target="view-order" aria-label="Order Tab">Fan Fuel</button>
             </nav>
         </div>
 
@@ -191,6 +198,6 @@
 
     </div>
 
-    <script src="js/app.js?v=2.1"></script>
+    <script src="js/app.js?v=2.2"></script>
 </body>
 </html>
