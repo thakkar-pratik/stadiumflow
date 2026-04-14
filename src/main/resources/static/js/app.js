@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // EVENT STREAM CONNECTION
-    const eventSource = new EventSource("http://localhost:8080/api/iot/stream");
+    const eventSource = new EventSource("/api/iot/stream");
     eventSource.onopen = () => console.log("✅ Stream Connected!");
     
     // Wrap heavy DOM updates in debouncer (Max 2 updates per second)
@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // FIRE REAL REST API POST REQUEST TO JAVA BACKEND DB
             checkoutBtn.innerText = "Processing...";
             try {
-                const response = await fetch("http://localhost:8080/api/orders", {
+                const response = await fetch("/api/orders", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(orderPayload)
@@ -356,7 +356,7 @@ async function sendChatMessage() {
     input.value = "";
 
     try {
-        const response = await fetch("http://localhost:8080/api/ai/ask", {
+        const response = await fetch("/api/ai/ask", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ query: query })
