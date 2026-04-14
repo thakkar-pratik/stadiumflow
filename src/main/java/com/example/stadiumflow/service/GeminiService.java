@@ -24,20 +24,31 @@ public class GeminiService {
         
         String response = "";
 
-        // 1. DYNAMIC ZONE LOOKUP
+        // 1. DYNAMIC ZONE LOOKUP (Improved Partial Matching)
         Optional<Zone> mentionedZone = zones.stream()
-            .filter(z -> userQuery.contains(z.getName().toLowerCase()) || userQuery.contains(z.getId().toLowerCase().replace("_", " ")))
+            .filter(z -> {
+                String name = z.getName().toLowerCase();
+                String id = z.getId().toLowerCase().replace("_", " ");
+                // Check if user query mentions the ID, the name, or core keywords
+                return userQuery.contains(id) || 
+                       userQuery.contains(z.getId().toLowerCase()) ||
+                       (userQuery.contains("north") && name.contains("north")) ||
+                       (userQuery.contains("vip") && name.contains("vip")) ||
+                       (userQuery.contains("food") && name.contains("food")) ||
+                       (userQuery.contains("hydration") && name.contains("hydration")) ||
+                       (userQuery.contains("gate a") && name.contains("gate a"));
+            })
             .findFirst();
 
         if (mentionedZone.isPresent()) {
             Zone z = mentionedZone.get();
             response = "I see you're asking about " + z.getName() + ". It currently has a " + z.getWaitTime() + "m wait and is at " + z.getDensity() + "% capacity. ";
             
-            // Contextual advice based on severity
-            if (z.getWaitTime() > 20) {
-                response += "It's quite busy right now! I recommend waiting 10 minutes or checking the Map for an alternate route.";
+            // Contextual advice based on wait intensity
+            if (z.getWaitTime() > 15) {
+                response += "It's quite busy right now! I recommend waiting 10 minutes or using the 'Live Map' to find an alternate route.";
             } else {
-                response += "Everything looks clear there. Enjoy!";
+                response += "The flow looks great there. It's a perfect time to head over!";
             }
         } 
         
