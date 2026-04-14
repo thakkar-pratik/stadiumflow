@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // REGISTER PWA SERVICE WORKER
+    // 1. REGISTER PWA SERVICE WORKER
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js')
@@ -9,15 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // UNIFIED NAVIGATION LOGIC (Syncs Sidebar + Bottom Nav)
+    // 2. UNIFIED NAVIGATION LOGIC
     const navButtons = document.querySelectorAll(".nav-item");
     const views = document.querySelectorAll(".view");
 
     navButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             const targetId = btn.getAttribute("data-target");
-            
-            // 1. Update all nav buttons across the app
             navButtons.forEach(b => {
                 if (b.getAttribute("data-target") === targetId) {
                     b.classList.add("active");
@@ -25,8 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     b.classList.remove("active");
                 }
             });
-
-            // 2. Switch the active view
             views.forEach(v => {
                 if (v.id === targetId) {
                     v.classList.add("active");
@@ -37,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // NETWORK TOGGLE LOGIC (Unified Mobile & Desktop)
+    // 3. NETWORK & OFFLINE LOGIC
     let isOnline = true;
     const networkToggleBtn = document.getElementById("network-toggle");
     const networkToggleDesktop = document.getElementById("network-toggle-desktop");
@@ -51,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const stateClass = isOnline ? "online" : "offline";
         const labelText = isOnline ? "5G Online" : "BLE Mesh";
 
-        // Update Sync: Both buttons must stay in sync
         [networkToggleBtn, networkToggleDesktop].forEach(btn => {
             if (btn) {
                 btn.className = `network-status ${stateClass}`;
@@ -83,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (networkToggleBtn) networkToggleBtn.addEventListener("click", () => updateNetworkUI(!isOnline));
     if (networkToggleDesktop) networkToggleDesktop.addEventListener("click", () => updateNetworkUI(!isOnline));
 
-    // DEBOUNCE UTILITY FOR EFFICIENCY
+    // 4. PERFORMANCE UTILITIES
     function debounce(func, wait) {
         let timeout;
         return function(...args) {
@@ -92,11 +87,10 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // EVENT STREAM CONNECTION
+    // 5. LIVE TELEMETRY (SSE)
     const eventSource = new EventSource("/api/iot/stream");
     eventSource.onopen = () => console.log("✅ Stream Connected!");
     
-    // Wrap heavy DOM updates in debouncer (Max 2 updates per second)
     const debouncedUpdates = debounce((data) => {
         updateHomeDashboard(data);
         updateMapScreen(data);
@@ -112,11 +106,14 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const data = JSON.parse(event.data);
             debouncedUpdates(data);
-        } catch (e) {}
+        } catch (e) {
+            console.error("Failed to parse SSE data", e);
+        }
     };
 
     function updateHomeDashboard(zones) {
         const grid = document.getElementById("wait-times-grid");
+        if (!grid) return;
         grid.innerHTML = "";
         zones.forEach(zone => {
             let statusClass = "status-low";
@@ -142,13 +139,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    let current112Price = 8.00; 
     function updateYieldPricing(zones) {
         processYield("Section_112", 112, 8.00, zones);
         processYield("Section_120", 120, 12.00, zones);
     }
-
-    // Capture dynamic price globally so we can send it to the backend DB
-    let current112Price = 8.00; 
 
     function processYield(zoneId, domId, basePrice, zones) {
         const zoneData = zones.find(z => z.id === zoneId);
@@ -163,17 +158,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (zoneData.waitTime < 5) {
             computedPrice = basePrice * 0.75;
             priceTxt.innerText = "$" + computedPrice.toFixed(2);
-            priceTxt.classList.add("discount"); oldPriceTxt.classList.remove("hidden");
+            priceTxt.classList.add("discount"); if (oldPriceTxt) oldPriceTxt.classList.remove("hidden");
             badge.style.background = "rgba(0, 230, 118, 0.2)"; badge.style.color = "var(--status-green)";
         } else if (zoneData.waitTime > 15) {
             computedPrice = basePrice;
             priceTxt.innerText = "$" + computedPrice.toFixed(2);
-            priceTxt.classList.remove("discount"); oldPriceTxt.classList.add("hidden");
+            priceTxt.classList.remove("discount"); if (oldPriceTxt) oldPriceTxt.classList.add("hidden");
             badge.style.background = "rgba(255, 23, 68, 0.2)"; badge.style.color = "var(--status-red)";
         } else {
             computedPrice = basePrice;
             priceTxt.innerText = "$" + computedPrice.toFixed(2);
-            priceTxt.classList.remove("discount"); oldPriceTxt.classList.add("hidden");
+            priceTxt.classList.remove("discount"); if (oldPriceTxt) oldPriceTxt.classList.add("hidden");
             badge.style.background = "rgba(254, 234, 0, 0.2)"; badge.style.color = "var(--status-yellow)";
         }
         
@@ -185,9 +180,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const alertText = document.getElementById("alert-message");
         const routePath = document.getElementById("live-route-path");
 
-        if (!zones || zones.length === 0) return;
+        if (!zones || zones.length === 0 || !alertBox || !alertText || !routePath) return;
 
-        // Find the zone with the lowest wait time that is either a Gate or Section
         let bestZone = null;
         for (const z of zones) {
             if (!bestZone || z.waitTime < bestZone.waitTime) {
@@ -206,17 +200,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const myCoords = { x: 50, y: 60 };
         const dest = coords[bestZone.id];
-        
         if (!dest) return;
 
-        // Draw an organic curve to the destination
         const midX = (myCoords.x + dest.x) / 2 + (myCoords.y - dest.y) * 0.2;
         const midY = (myCoords.y + dest.y) / 2 + (dest.x - myCoords.x) * 0.2;
         const route = `M ${myCoords.x} ${myCoords.y} Q ${midX} ${midY}, ${dest.x} ${dest.y}`;
-
         routePath.setAttribute("d", route);
         
-        // Show an alert dynamically if we reroute
         if (bestZone.waitTime < 10) {
             alertText.innerText = `Smart Route Active: ${bestZone.name} is nearest and relatively empty (${bestZone.waitTime}m).`;
             alertBox.classList.remove("hidden");
@@ -226,174 +216,184 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // 6. AR NAVIGATION LOGIC
     const openArBtn = document.getElementById("open-ar-btn");
     const closeArBtn = document.getElementById("close-ar-btn");
     const arOverlay = document.getElementById("ar-overlay");
     const webcamFeed = document.getElementById("webcam-feed");
     let localStream = null;
 
-    openArBtn.addEventListener("click", async () => {
-        arOverlay.classList.remove("hidden");
-        
-        const scanDiv = document.createElement("div");
-        scanDiv.id = "ar-scanning";
-        scanDiv.className = "ar-scanning";
-        scanDiv.innerHTML = "<span>🛰️ SCANNING WORLD...</span>";
-        arOverlay.appendChild(scanDiv);
-        
-        const constraints = [
-            { video: { facingMode: { exact: "environment" } } }, // Back Cam
-            { video: true } // Fallback to any cam (Front/Laptop)
-        ];
-
-        for (let constraint of constraints) {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia(constraint);
-                webcamFeed.srcObject = localStream;
-                webcamFeed.play();
-                break; 
-            } catch (e) {
-                console.warn("Back camera not available, trying fallback...");
-            }
-        }
-
-        if (!localStream) {
-            alert("No camera found. Using simulated positioning.");
-        }
-
-        setTimeout(() => {
-            const scan = document.getElementById("ar-scanning");
-            if (scan) scan.remove();
-        }, 1500);
-    });
-
-    closeArBtn.addEventListener("click", () => {
-        arOverlay.classList.add("hidden");
-        const scan = document.getElementById("ar-scanning");
-        if (scan) scan.remove();
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-            localStream = null;
-        }
-    });
-
-    // REST API BACKEND INTEGRATION
-    checkoutBtn.addEventListener("click", async () => {
-        
-        const orderPayload = {
-            zoneId: "Section_112",
-            itemMenu: "Mega Hotdog",
-            paidPrice: current112Price,
-            offlineMesh: !isOnline
-        };
-
-        if (isOnline) {
-            // FIRE REAL REST API POST REQUEST TO JAVA BACKEND DB
-            checkoutBtn.innerText = "Processing...";
-            try {
-                const response = await fetch("/api/orders", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(orderPayload)
-                });
-                if (response.ok) {
-                    alert("Order successfully written to Spring Boot H2 Database over 5G!");
-                } else {
-                    alert("Order failed. Ensure Java is running!");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Could not reach Backend API");
-            } finally {
-                checkoutBtn.innerText = "Checkout";
-            }
-        } else {
-            // OFFLINE BLE MESH SIMULATION
-            document.getElementById("ble-mesh-overlay").classList.remove("hidden");
+    if (openArBtn) {
+        openArBtn.addEventListener("click", async () => {
+            arOverlay.classList.remove("hidden");
+            const scanDiv = document.createElement("div");
+            scanDiv.id = "ar-scanning";
+            scanDiv.className = "ar-scanning";
+            scanDiv.innerHTML = "<span>🛰️ SCANNING WORLD...</span>";
+            arOverlay.appendChild(scanDiv);
             
-            for (let i=1; i<=6; i++) {
-                document.getElementById(`log-${i}`).classList.add("hidden");
+            const constraints = [
+                { video: { facingMode: { exact: "environment" } } },
+                { video: true }
+            ];
+
+            for (let constraint of constraints) {
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia(constraint);
+                    webcamFeed.srcObject = localStream;
+                    webcamFeed.play();
+                    break; 
+                } catch (e) {
+                    console.warn("Camera fallback...");
+                }
             }
-            document.getElementById("peer-node").classList.add("hidden");
-            document.getElementById("qr-result").classList.add("hidden");
 
-            setTimeout(() => document.getElementById("log-1").classList.remove("hidden"), 500);
-            setTimeout(() => document.getElementById("log-2").classList.remove("hidden"), 1500);
             setTimeout(() => {
-                document.getElementById("log-3").classList.remove("hidden");
-                document.getElementById("peer-node").classList.remove("hidden");
-            }, 3000);
-            setTimeout(() => document.getElementById("log-4").classList.remove("hidden"), 4000);
-            setTimeout(() => {
-                document.getElementById("log-5").classList.remove("hidden");
-                document.getElementById("peer-node").style.transform = "scale(1.5)";
-                document.getElementById("peer-node").style.background = "var(--status-green)";
-            }, 5500);
-            setTimeout(() => {
-                document.getElementById("log-6").classList.remove("hidden");
-                // Here we would normally sync the `orderPayload` once we regain network connection!
-                document.getElementById("qr-result").classList.remove("hidden");
-            }, 7000);
-        }
-    });
-
-});
-
-// AI CHAT LOGIC
-function toggleChat() {
-    const chatWin = document.getElementById("ai-chat-window");
-    chatWin.classList.toggle("hidden");
-}
-
-async function sendChatMessage() {
-    const input = document.getElementById("chat-input");
-    const container = document.getElementById("chat-messages");
-    const query = input.value.trim();
-    if (!query) return;
-
-    // Append User Msg
-    appendMsg(query, "user");
-    input.value = "";
-
-    try {
-        const response = await fetch("/api/ai/ask", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: query })
+                const scan = document.getElementById("ar-scanning");
+                if (scan) scan.remove();
+            }, 1500);
         });
-        const data = await response.json();
-        appendMsg(data.response, "bot");
-    } catch (err) {
-        appendMsg("I'm having trouble connecting to my central brain. Please check your backend!", "bot");
     }
-}
 
-function appendMsg(text, type) {
-    const container = document.getElementById("chat-messages");
-    const div = document.createElement("div");
-    div.className = `msg ${type}`;
-    div.innerText = text;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-}
+    if (closeArBtn) {
+        closeArBtn.addEventListener("click", () => {
+            arOverlay.classList.add("hidden");
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+        });
+    }
 
-document.getElementById("send-chat-btn").addEventListener("click", sendChatMessage);
-document.getElementById("chat-input").addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendChatMessage();
+    // 7. REST API BACKEND INTEGRATION
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener("click", async () => {
+            const orderPayload = {
+                zoneId: "Section_112",
+                itemMenu: "Mega Hotdog",
+                paidPrice: current112Price,
+                offlineMesh: !isOnline
+            };
+
+            if (isOnline) {
+                checkoutBtn.innerText = "Processing...";
+                try {
+                    const response = await fetch("/api/orders", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(orderPayload)
+                    });
+                    if (response.ok) {
+                        alert("Order successfully written to Spring Boot H2 Database over 5G!");
+                    } else {
+                        alert("Order failed. Ensure Java is running!");
+                    }
+                } catch (err) {
+                    alert("Could not reach Backend API");
+                } finally {
+                    checkoutBtn.innerText = "Checkout";
+                }
+            } else {
+                simulateBleMesh();
+            }
+        });
+    }
+
+    function simulateBleMesh() {
+        document.getElementById("ble-mesh-overlay").classList.remove("hidden");
+        for (let i=1; i<=6; i++) {
+            const el = document.getElementById(`log-${i}`);
+            if (el) el.classList.add("hidden");
+        }
+        const peer = document.getElementById("peer-node");
+        const qr = document.getElementById("qr-result");
+        if (peer) peer.classList.add("hidden");
+        if (qr) qr.classList.add("hidden");
+
+        setTimeout(() => document.getElementById("log-1").classList.remove("hidden"), 500);
+        setTimeout(() => document.getElementById("log-2").classList.remove("hidden"), 1500);
+        setTimeout(() => {
+            document.getElementById("log-3").classList.remove("hidden");
+            if (peer) peer.classList.remove("hidden");
+        }, 3000);
+        setTimeout(() => document.getElementById("log-4").classList.remove("hidden"), 4000);
+        setTimeout(() => {
+            document.getElementById("log-5").classList.remove("hidden");
+            if (peer) {
+                peer.style.transform = "scale(1.5)";
+                peer.style.background = "var(--status-green)";
+            }
+        }, 5500);
+        setTimeout(() => {
+            document.getElementById("log-6").classList.remove("hidden");
+            if (qr) qr.classList.remove("hidden");
+        }, 7000);
+    }
+
+    // 8. GEMINI AI ASSISTANT LOGIC
+    const sendChatBtn = document.getElementById("send-chat-btn");
+    const chatInput = document.getElementById("chat-input");
+
+    window.toggleChat = function() {
+        const chatWin = document.getElementById("ai-chat-window");
+        if (chatWin) chatWin.classList.toggle("hidden");
+    };
+
+    async function sendChatMessage() {
+        if (!chatInput) return;
+        const query = chatInput.value.trim();
+        if (!query) return;
+
+        appendMsg(query, "user");
+        chatInput.value = "";
+
+        try {
+            const response = await fetch("/api/ai/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: query })
+            });
+            const data = await response.json();
+            appendMsg(data.response, "bot");
+        } catch (err) {
+            appendMsg("I'm having trouble connecting to my central brain.", "bot");
+        }
+    }
+
+    function appendMsg(text, type) {
+        const container = document.getElementById("chat-messages");
+        if (!container) return;
+        const div = document.createElement("div");
+        div.className = `msg ${type}`;
+        div.innerText = text;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    if (sendChatBtn) sendChatBtn.addEventListener("click", sendChatMessage);
+    if (chatInput) {
+        chatInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendChatMessage();
+        });
+    }
+
+    window.dismissAlert = function() { 
+        const alertNode = document.getElementById("smart-alert");
+        if (alertNode) alertNode.classList.add("hidden"); 
+    };
+
+    // 9. VIEW MODE TOGGLE (Judge Helper)
+    const toggleDesktop = document.getElementById("toggle-view-desktop");
+    const toggleMobile = document.getElementById("toggle-view-mobile");
+
+    function togglePerspective() {
+        document.body.classList.toggle("force-mobile");
+        const isForced = document.body.classList.contains("force-mobile");
+        if (toggleDesktop) toggleDesktop.innerText = isForced ? "🖥️ Switch to Desktop" : "📱 Toggle Mobile View";
+        if (toggleMobile) toggleMobile.innerText = isForced ? "🖥️ Full View" : "🖥️ Exit Mobile View";
+    }
+
+    if (toggleDesktop) toggleDesktop.addEventListener("click", togglePerspective);
+    if (toggleMobile) toggleMobile.addEventListener("click", togglePerspective);
+
 });
-
-function dismissAlert() { document.getElementById("smart-alert").classList.add("hidden"); }
-
-// VIEW MODE TOGGLE (Judge Helper)
-const toggleDesktop = document.getElementById("toggle-view-desktop");
-const toggleMobile = document.getElementById("toggle-view-mobile");
-
-function togglePerspective() {
-    document.body.classList.toggle("force-mobile");
-    const isForced = document.body.classList.contains("force-mobile");
-    if (toggleDesktop) toggleDesktop.innerText = isForced ? "🖥️ Switch to Desktop" : "📱 Toggle Mobile View";
-    if (toggleMobile) toggleMobile.innerText = isForced ? "🖥️ Full View" : "🖥️ Exit Mobile View";
-}
-
-if (toggleDesktop) toggleDesktop.addEventListener("click", togglePerspective);
-if (toggleMobile) toggleMobile.addEventListener("click", togglePerspective);
