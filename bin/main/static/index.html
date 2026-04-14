@@ -13,6 +13,9 @@
     <meta name="apple-mobile-web-app-title" content="StadiumPulse">
     <link rel="apple-touch-icon" href="images/icon-192.png">
 
+    <!-- Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="css/styles.css?v=1.1">
 </head>
 <body>
@@ -36,20 +39,19 @@
         </nav>
 
         <div class="main-wrapper">
-            <!-- App Header -->
+            <!-- App Header: High-End Concierge Style -->
             <header class="app-header">
-                <div>
-                    <h1 style="margin:0;">StadiumPulse Live</h1>
-                    <p style="font-size:10px; opacity:0.8; margin:0;">Coldplay: Music of the Spheres</p>
+                <div class="header-left">
+                    <p class="greeting mobile-only">Hi, Guest Fan 👋</p>
+                    <h1 class="logo-title">StadiumPulse</h1>
+                    <p class="event-tag">COLDPLAY: MUSIC OF THE SPHERES</p>
                 </div>
                 <div class="header-right">
-                    <button class="view-toggle-btn mobile-only" id="toggle-view-mobile" style="margin-right:10px;">🖥️ Full View</button>
-                    <!-- Network Toggle (Mobile View) -->
-                    <div style="text-align:right;">
-                        <button id="network-toggle" class="network-status online mobile-only">
-                            <span class="status-dot"></span> <span id="network-label">5G Online</span>
-                        </button>
-                        <p class="mobile-only" style="font-size:8px; opacity:0.6; margin:2px 0 0 0;">Toggle for Bluetooth Mode</p>
+                    <button class="view-toggle-btn mobile-only" id="toggle-view-mobile">🖥️ Desktop</button>
+                    <!-- Network Status Capsule -->
+                    <div class="status-capsule mobile-only" id="network-toggle">
+                        <span class="status-dot"></span>
+                        <span id="network-label">5G</span>
                     </div>
                 </div>
             </header>
@@ -91,7 +93,11 @@
                         <p class="log hidden" style="color:var(--status-green); font-weight:bold;" id="log-6">✅ Order Confirmed Offline</p>
                     </div>
                     <div class="qr-result hidden" id="qr-result">
-                        <div class="qr-mock"></div><p>Show this to the vendor</p>
+                        <div class="barcode-container" id="barcode-area">
+                            <!-- JS will inject bars here -->
+                        </div>
+                        <p>Unique Security Token: <span id="ble-token">#PX-991</span></p>
+                        <p>Show this to the vendor</p>
                         <button class="checkout-btn" onclick="document.getElementById('ble-mesh-overlay').classList.add('hidden')" style="margin-top:10px;">Close</button>
                     </div>
                 </div>
@@ -159,15 +165,23 @@
                             <div class="order-item" id="menu-112">
                                 <div class="item-info"><h3>Wankhede Spicy Burger (Sec 112)</h3><p class="wait-badge" id="badge-112">Wait: -- m</p></div>
                                 <div class="price-container">
+                                    <div class="qty-controls">
+                                        <button class="qty-btn" onclick="updateQty('112', -1)">-</button>
+                                        <span class="qty-count" id="qty-112">0</span>
+                                        <button class="qty-btn" onclick="updateQty('112', 1)">+</button>
+                                    </div>
                                     <span class="old-price hidden" id="old-price-112">₹800</span><span class="current-price" id="price-112">₹600</span>
-                                    <button class="add-btn" aria-label="Add to cart">+</button>
                                 </div>
                             </div>
                             <div class="order-item" id="menu-120">
                                 <div class="item-info"><h3>Cosmic Water - Refillable (Sec 120)</h3><p class="wait-badge" id="badge-120">Wait: -- m</p></div>
                                 <div class="price-container">
+                                    <div class="qty-controls">
+                                        <button class="qty-btn" onclick="updateQty('120', -1)">-</button>
+                                        <span class="qty-count" id="qty-120">0</span>
+                                        <button class="qty-btn" onclick="updateQty('120', 1)">+</button>
+                                    </div>
                                     <span class="old-price hidden" id="old-price-120">₹150</span><span class="current-price" id="price-120">₹100</span>
-                                    <button class="add-btn" aria-label="Add to cart">+</button>
                                 </div>
                             </div>
                         </div>
@@ -177,11 +191,20 @@
                 </div>
             </main>
 
-            <!-- Bottom Navigation (Mobile View) -->
+            <!-- Bottom Navigation: Professional Icon Bar -->
             <nav class="bottom-nav mobile-only" role="navigation" aria-label="Mobile Navigation">
-                <button class="nav-item active" data-target="view-home" aria-label="Dashboard Tab">Queues</button>
-                <button class="nav-item" data-target="view-map" aria-label="Map Tab">Arena Map</button>
-                <button class="nav-item" data-target="view-order" aria-label="Order Tab">Fan Fuel</button>
+                <button class="nav-item active" data-target="view-home">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span>Queues</span>
+                </button>
+                <button class="nav-item" data-target="view-map">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 16 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                    <span>Map</span>
+                </button>
+                <button class="nav-item" data-target="view-order">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span>Fuel</span>
+                </button>
             </nav>
         </div>
 

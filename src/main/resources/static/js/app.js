@@ -42,7 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkoutBtn = document.getElementById("checkout-main-btn");
     const checkoutWarning = document.getElementById("checkout-network-warning");
 
-    function updateNetworkUI(status) {
+    async function updateNetworkUI(status) {
+        // PERMISSION SIMULATION: Request Bluetooth access before switching to Mesh
+        if (!status && isOnline) {
+            const permission = confirm(" stadiumpulse-live.web.app wants to turn on Bluetooth. Allow device scanning for Mesh Network?");
+            if (!permission) return;
+            alert("Bluetooth Enabled. Switching to BLE Mesh Protocol...");
+        }
+
         isOnline = status;
         const stateClass = isOnline ? "online" : "offline";
         const labelText = isOnline ? "5G Online" : "BLE Mesh";
@@ -308,13 +315,46 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 7. REST API BACKEND INTEGRATION
+    // 7. RETAIL LOGIC: CART & QUANTITIES
+    const cart = { "112": 0, "120": 0 };
+    window.updateQty = function(id, change) {
+        cart[id] = Math.max(0, cart[id] + change);
+        const qtyEl = document.getElementById(`qty-${id}`);
+        if (qtyEl) qtyEl.innerText = cart[id];
+    };
+
+    function generateVisualBarcode() {
+        const container = document.getElementById("barcode-area");
+        if (!container) return;
+        container.innerHTML = "";
+        for (let i = 0; i < 40; i++) {
+            const bar = document.createElement("div");
+            bar.className = "bar";
+            // Randomly vary bar widths for a realistic barcode look
+            const width = Math.floor(Math.random() * 4) + 1;
+            bar.style.width = `${width}px`;
+            container.appendChild(bar);
+        }
+        const token = "PX-" + Math.floor(100 + Math.random() * 900);
+        const tokenEl = document.getElementById("ble-token");
+        if (tokenEl) tokenEl.innerText = token;
+    }
+
     if (checkoutBtn) {
         checkoutBtn.addEventListener("click", async () => {
+            const totalQty = cart["112"] + cart["120"];
+            if (totalQty === 0) {
+                alert("Please add at least one item to your cart!");
+                return;
+            }
+
             const orderPayload = {
                 zoneId: "Section_112",
-                itemMenu: "Wankhede Spicy Burger",
-                paidPrice: current112Price,
+                items: [
+                    { name: "Wankhede Spicy Burger", qty: cart["112"] },
+                    { name: "Cosmic Water", qty: cart["120"] }
+                ],
+                paidPrice: (cart["112"] * 600) + (cart["120"] * 150),
                 offlineMesh: !isOnline
             };
 
@@ -327,16 +367,17 @@ document.addEventListener("DOMContentLoaded", () => {
                         body: JSON.stringify(orderPayload)
                     });
                     if (response.ok) {
-                        alert("Order successfully written to Spring Boot H2 Database over 5G!");
+                        alert("Order Successful!");
                     } else {
-                        alert("Order failed. Ensure Java is running!");
+                        alert("Checkout error. Please try again.");
                     }
                 } catch (err) {
                     alert("Could not reach Backend API");
                 } finally {
-                    checkoutBtn.innerText = "Checkout";
+                    checkoutBtn.innerText = "Proceed to Payment";
                 }
             } else {
+                generateVisualBarcode();
                 simulateBleMesh();
             }
         });
