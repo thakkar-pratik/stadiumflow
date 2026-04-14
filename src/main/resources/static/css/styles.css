@@ -139,24 +139,26 @@ body.force-mobile .view-toggle-btn { margin-top: 0; }
     align-items: flex-start;
     z-index: 100;
 }
-.header-left { display: flex; flex-direction: column; gap: 8px; }
-.greeting { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+.header-left { display: flex; flex-direction: column; gap: 10px; }
+.greeting { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 0px; }
 .logo-title { 
-    font-size: 32px; 
+    font-size: 36px; 
     font-weight: 900; 
     margin: 0;
+    line-height: 0.9;
     background: linear-gradient(90deg, #fff, var(--accent-blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -1.5px;
 }
 .event-tag { 
-    font-size: 10px; 
-    font-weight: 700; 
+    font-size: 13px; 
+    font-weight: 800; 
     color: var(--status-purple); 
     text-transform: uppercase; 
-    letter-spacing: 1px; 
+    letter-spacing: 2px; 
     margin: 0;
+    opacity: 0.9;
 }
 
 .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
@@ -214,10 +216,10 @@ h2 { font-size: 18px; color: var(--text-muted); margin: 30px 0 20px 0; text-tran
 .promo-card p { font-size: 15px; color: var(--text-muted); line-height: 1.6; }
 
 /* MAP */
-.stadium-map-container { display: flex; flex-direction: column; height: 75vh; min-height: 500px; }
+.stadium-map-container { display: flex; flex-direction: column; transition: all 0.3s; }
 .map-wrapper {
-    position: relative; width: 100%; aspect-ratio: 16/9; max-height: 500px;
-    border-radius: 24px; border: 1px solid rgba(0,242,254,0.2);
+    position: relative; width: 100%; aspect-ratio: 16/9;
+    border-radius: 24px; border: 1px solid rgba(0,242,254,0.1);
     overflow: hidden; background: #000;
 }
 .blueprint-img { 
@@ -266,12 +268,22 @@ h2 { font-size: 18px; color: var(--text-muted); margin: 30px 0 20px 0; text-tran
     .mobile-only { display: flex !important; }
     .desktop-only { display: none !important; }
     header { padding: 35px 20px 10px 20px; }
-    main { padding: 0 20px 130px 20px; }
+    main { padding: 0 10px 130px 10px; }
     .grid { grid-template-columns: 1fr; gap: 24px; }
     .card, .order-item { padding: 28px; border-radius: 32px; }
-    .logo-title { font-size: 24px; letter-spacing: -1px; }
-    .greeting { font-size: 18px; margin-bottom: 4px; }
-    h2 { font-size: 15px; margin: 25px 0 15px 0; letter-spacing: 2px; }
+    .logo-title { font-size: 28px; letter-spacing: -1.5px; margin: 2px 0; }
+    .greeting { font-size: 20px; margin-bottom: 2px; }
+    .event-tag { font-size: 11px; letter-spacing: 2px; font-weight: 800; }
+    h2 { font-size: 15px; margin: 25px 0 15px 0; letter-spacing: 2.5px; }
+
+    /* Map Specific Mobile Overrides */
+    .stadium-map-container { align-items: center; }
+    .stadium-map-container h2 { font-size: 14px; text-align: center; line-height: 1.6; }
+    .map-wrapper { aspect-ratio: 1/1.1; width: calc(100% + 20px); margin-left: -10px; border-radius: 0; border: none; }
+    .blueprint-img { object-fit: cover; opacity: 1; }
+    .zone { font-size: 10px; padding: 4px 8px; border-width: 1px; }
+    .pin-marker { font-size: 16px; font-weight: 800; border: 2px solid #fff; border-radius: 50%; padding: 4px; background: rgba(0,0,0,0.5); }
+    .ar-btn { width: 100%; justify-content: center; margin-bottom: 20px; }
 }
 
 @media (min-width: 801px) {
@@ -485,7 +497,7 @@ h2 { font-size: 18px; color: var(--text-muted); margin: 30px 0 20px 0; text-tran
 
 /* SMART ALERT STYLES */
 .smart-alert {
-    position: fixed; top: 20px; right: 60px;
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
     background: rgba(15, 17, 26, 0.95); backdrop-filter: blur(10px);
     border: 1px solid rgba(0, 242, 254, 0.3); border-left: 5px solid var(--accent-blue);
     padding: 15px 20px; border-radius: 12px; z-index: 2000;
