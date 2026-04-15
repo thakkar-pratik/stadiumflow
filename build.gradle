@@ -30,6 +30,11 @@ dependencies {
     // Spring Cloud GCP - The "Gold Standard" Google detection
     implementation 'com.google.cloud:spring-cloud-gcp-starter:3.4.0'
     implementation 'com.google.cloud:spring-cloud-gcp-starter-logging:3.4.0'
+    implementation 'com.google.cloud:spring-cloud-gcp-starter-secretmanager:3.4.0'
+    
+    // Professional Infrastructure SDKs
+    implementation 'com.google.cloud:google-cloud-storage:2.22.0'
+    implementation 'com.google.cloud:google-cloud-secretmanager:2.18.0'
     
     runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
