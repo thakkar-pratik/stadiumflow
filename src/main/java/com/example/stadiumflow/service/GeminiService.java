@@ -40,9 +40,7 @@ public class GeminiService {
     
     // Google Cloud Asset & Security Infrastructure
     private Storage storage;
-
-    @Value("${sm://STADIUM_API_KEY:placeholder-key}")
-    private String stadiumApiKey;
+    private final String stadiumApiKey = "GCP_INTERNAL_MANAGED_KEY";
 
     public GeminiService(ZoneRepository zoneRepository) {
         this.zoneRepository = zoneRepository;
