@@ -38,6 +38,9 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mockito:mockito-inline:4.11.0'
+
+    // Google Gemini API for AI capabilities
+    implementation 'com.google.ai.client.generativeai:generativeai:0.1.2'
 }
 
 tasks.named('test') {

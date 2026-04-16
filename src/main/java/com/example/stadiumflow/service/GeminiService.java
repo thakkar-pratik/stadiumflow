@@ -14,6 +14,7 @@ import com.google.cloud.storage.StorageOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.stadiumflow.dto.AiResponseDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +32,14 @@ import java.util.Optional;
 public class GeminiService {
     
     private static final Logger log = LoggerFactory.getLogger(GeminiService.class);
-    
+
     private final ZoneRepository zoneRepository;
 
-    // Google Cloud Orchestration (Vertex AI Interface)
+    // Google Gemini API Service (Primary - for Prompt Wars)
+    @Autowired(required = false)
+    private GeminiApiService geminiApiService;
+
+    // Google Cloud Orchestration (Vertex AI Interface - Secondary)
     private VertexAI vertexAi;
     private GenerativeModel model;
 
@@ -75,7 +80,7 @@ public class GeminiService {
 
     /**
      * Processes natural language queries against stadium telemetry data.
-     * Uses Google Vertex AI (Gemini) when available, falls back to rule-based logic.
+     * Priority: Google Gemini API > Vertex AI > Rule-based logic
      *
      * @param rawQuery The user input string.
      * @return An AiResponseDto containing the AI response and provider metadata.
@@ -83,7 +88,20 @@ public class GeminiService {
     public AiResponseDto processQuery(String rawQuery) {
         log.debug("Processing fan query: {}", rawQuery);
 
-        // Try to use real Vertex AI first
+        // 🏆 PRIORITY 1: Try Google Gemini API (for Prompt Wars competition)
+        if (geminiApiService != null && geminiApiService.isAvailable()) {
+            try {
+                String geminiResponse = geminiApiService.processWithGemini(rawQuery);
+                if (geminiResponse != null && !geminiResponse.isEmpty()) {
+                    log.info("✅ Using Google Gemini API (Prompt Wars)");
+                    return new AiResponseDto(geminiResponse, "Google Gemini API");
+                }
+            } catch (Exception e) {
+                log.warn("⚠️ Gemini API failed, trying Vertex AI: {}", e.getMessage());
+            }
+        }
+
+        // PRIORITY 2: Try Vertex AI (if Gemini API unavailable)
         if (model != null && vertexAi != null) {
             try {
                 return processWithVertexAI(rawQuery);
@@ -94,7 +112,7 @@ public class GeminiService {
             }
         }
 
-        // Fallback: Rule-based logic
+        // PRIORITY 3: Fallback - Rule-based logic
         return processWithRuleBasedLogic(rawQuery);
     }
 
