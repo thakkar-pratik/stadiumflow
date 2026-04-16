@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import java.util.ArrayList;
 import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -766,4 +767,29 @@ public class GeminiServiceTest {
         AiResponseDto response = geminiService.processQuery("vip");
         assertNotNull(response);
     }
+
+    @Test
+    public void testProcessQuery_WithEmptyZoneDatabase() {
+        when(zoneRepository.findAll()).thenReturn(new ArrayList<>());
+        AiResponseDto response = geminiService.processQuery("status");
+        assertNotNull(response);
+        assertNotNull(response.getProvider());
+    }
+
+    @Test
+    public void testProcessQuery_SpecialCharactersHandling() {
+        AiResponseDto response = geminiService.processQuery("!@#$%^&*()");
+        assertNotNull(response);
+        assertNotNull(response.getProvider());
+    }
+
+    @Test
+    public void testProcessQuery_ValidQueryWithValidResponse() {
+        AiResponseDto response = geminiService.processQuery("What's the stadium status?");
+        assertNotNull(response);
+        assertNotNull(response.getProvider());
+        assertNotNull(response.getResponse());
+    }
 }
+
+

@@ -45,7 +45,7 @@ public class StorageServiceTest {
     @Test
     public void testListAnalyticsFiles_StorageDisabled() {
         List<String> files = storageService.listAnalyticsFiles();
-        
+
         assertNotNull(files);
         assertTrue(files.isEmpty());
     }
@@ -61,23 +61,26 @@ public class StorageServiceTest {
     }
 
     @Test
-    public void testUploadAnalytics_NullFileName() {
-        boolean result = storageService.uploadAnalytics(null, "content");
-        
-        assertFalse(result);
-    }
-
-    @Test
-    public void testUploadAnalytics_EmptyFileName() {
-        boolean result = storageService.uploadAnalytics("", "content");
-        
+    public void testUploadAnalytics_NullFilename() {
+        boolean result = storageService.uploadAnalytics(null, "{\"test\": true}");
         assertFalse(result);
     }
 
     @Test
     public void testUploadAnalytics_NullContent() {
-        boolean result = storageService.uploadAnalytics("test.json", null);
-        
+        boolean result = storageService.uploadAnalytics("file.json", null);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testUploadAnalytics_EmptyFilename() {
+        boolean result = storageService.uploadAnalytics("", "{\"test\": true}");
+        assertFalse(result);
+    }
+
+    @Test
+    public void testUploadAnalytics_EmptyContent() {
+        boolean result = storageService.uploadAnalytics("file.json", "");
         assertFalse(result);
     }
 
