@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.example.stadiumflow.controller.OrderControllerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-04-14T18:52:21" hostname="MBP-JNVDJ7J3P7" time="0.049">
-  <properties/>
-  <testcase name="testPlaceOrder()" classname="com.example.stadiumflow.controller.OrderControllerTest" time="0.049"/>
-  <system-out><![CDATA[✅ BACKEND SAVED NEW DB RECORD: Mega Hotdog | Price: $8.0 | OfflineMesh: true
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
